@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "ir.arminniromandi.permissionchecker"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "ir.arminniromandi.permissionchecker"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -35,6 +35,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
     }
 }
 
