@@ -27,7 +27,6 @@ class AppIconLoader @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    // Target icon size in px (e.g. 192px corresponds to 96dp on 2x density)
     private val iconSizePx = 192
 
     // Cache ~15% of max available heap memory for icon bitmaps

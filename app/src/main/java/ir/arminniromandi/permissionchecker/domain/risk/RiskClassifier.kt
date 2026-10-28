@@ -5,23 +5,157 @@ import ir.arminniromandi.permissionchecker.domain.model.RiskLevel
 
 object RiskClassifier {
 
-    const val HIGH_RISK_COUNT_THRESHOLD = 3
-    const val HIGH_RISK_SCORE_THRESHOLD = 12
-
-    const val SCORE_HIGH = 5
+    // Permission risk scores
+    const val SCORE_HIGH = 6
     const val SCORE_MEDIUM = 2
-    const val SCORE_LOW = 1
-    const val SCORE_NONE = 0
 
-    // Standard Android protection base types (equivalent to PermissionInfo.PROTECTION_*)
-    const val PROTECTION_NORMAL = 0
-    const val PROTECTION_DANGEROUS = 1
-    const val PROTECTION_SIGNATURE = 2
+    // Overall risk thresholds
+    const val HIGH_RISK_SCORE_THRESHOLD = 12
+    const val MEDIUM_RISK_SCORE_THRESHOLD = 4
+
+    /**
+     * Critical runtime permissions.
+     *
+     * These permissions trigger immediate HIGH risk only when granted.
+     */
+    private val CRITICAL_RUNTIME_PERMISSIONS = setOf(
+        "android.permission.READ_SMS",
+        "android.permission.RECEIVE_SMS",
+    )
+
+    /**
+     * Critical special or privileged permissions.
+     *
+     * Their effective access state must be determined by the scanning
+     * layer. Do not rely solely on requestedPermissionsFlags for AppOps
+     * or special-access permissions.
+     */
+    val CRITICAL_SPECIAL_PERMISSIONS = setOf(
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.REQUEST_INSTALL_PACKAGES",
+        "android.permission.MANAGE_EXTERNAL_STORAGE",
+        "android.permission.PACKAGE_USAGE_STATS",
+        "android.permission.WRITE_SECURE_SETTINGS",
+    )
+
+    private val ALL_CRITICAL_PERMISSIONS =
+        CRITICAL_RUNTIME_PERMISSIONS + CRITICAL_SPECIAL_PERMISSIONS
+
+    /**
+     * Classifies the potential risk of a single permission.
+     *
+     * This method does not receive grant state. Therefore, HIGH here
+     * describes the permission's risk category, not proof that the
+     * application currently has the corresponding access.
+     */
+    fun classifyPermission(
+        name: String,
+        protectionLevel: Int,
+    ): RiskLevel {
+        if (name in ALL_CRITICAL_PERMISSIONS) {
+            return RiskLevel.HIGH
+        }
+
+        return PERMISSION_RISK_MAP[name]
+            ?: if (name.startsWith("android.permission.READ_MEDIA_")) {
+                RiskLevel.MEDIUM
+            } else {
+                classifyByProtectionLevel(protectionLevel)
+            }
+    }
+
+    /**
+     * Fallback classification using Android protection base type and flags.
+     *
+     * Only the documented base-type mask and privileged flag are used.
+     * DEVELOPMENT (0x20) is not treated as PRIVILEGED.
+     */
+    private fun classifyByProtectionLevel(
+        protectionLevel: Int,
+    ): RiskLevel {
+        val baseProtection = protectionLevel and PROTECTION_MASK_BASE
+        val isPrivileged = (protectionLevel and PROTECTION_FLAG_PRIVILEGED) != 0
+
+        return when {
+            baseProtection == PROTECTION_DANGEROUS ->
+                RiskLevel.MEDIUM
+
+            baseProtection == PROTECTION_SIGNATURE ||
+                    baseProtection == PROTECTION_SIGNATURE_OR_SYSTEM ||
+                    isPrivileged ->
+                RiskLevel.LOW
+
+            else ->
+                RiskLevel.NONE
+        }
+    }
+
+    /**
+     * Calculates the overall risk of an application.
+     *
+     * CRITICAL runtime and special permissions immediately produce
+     * HIGH only when their effective access state is granted.
+     *
+     * Other permissions contribute to the weighted score.
+     * Ungranted permissions contribute half their base score.
+     */
+    fun calculateOverallRisk(
+        permissions: List<PermissionInfo>,
+    ): RiskLevel {
+        if (permissions.isEmpty()) {
+            return RiskLevel.NONE
+        }
+
+        val hasGrantedCriticalPermission = permissions.any { permission ->
+            permission.isGranted && permission.name in ALL_CRITICAL_PERMISSIONS
+        }
+
+        if (hasGrantedCriticalPermission) {
+            return RiskLevel.HIGH
+        }
+
+        val score = permissions.sumOf { permission ->
+            val baseScore = when (permission.risk) {
+                RiskLevel.HIGH -> SCORE_HIGH
+                RiskLevel.MEDIUM -> SCORE_MEDIUM
+                else -> 0
+            }
+
+            if (permission.isGranted) {
+                baseScore
+            } else {
+                baseScore / 2
+            }
+        }
+
+        return when {
+            score >= HIGH_RISK_SCORE_THRESHOLD ->
+                RiskLevel.HIGH
+
+            score >= MEDIUM_RISK_SCORE_THRESHOLD ->
+                RiskLevel.MEDIUM
+
+            permissions.any { it.risk != RiskLevel.NONE } ->
+                RiskLevel.LOW
+
+            else ->
+                RiskLevel.NONE
+        }
+    }
+
+    // Android protection base types and masks.
+    private const val PROTECTION_MASK_BASE = 0x0F
+    private const val PROTECTION_NORMAL = 0
+    private const val PROTECTION_DANGEROUS = 1
+    private const val PROTECTION_SIGNATURE = 2
+    private const val PROTECTION_SIGNATURE_OR_SYSTEM = 3
+
+    // Android protection flags.
+    private const val PROTECTION_FLAG_PRIVILEGED = 0x10
 
     private val PERMISSION_RISK_MAP: Map<String, RiskLevel> = mapOf(
-        // HIGH RISK PERMISSIONS
-        "android.permission.READ_SMS" to RiskLevel.HIGH,
-        "android.permission.RECEIVE_SMS" to RiskLevel.HIGH,
+
+        // HIGH risk permissions
         "android.permission.SEND_SMS" to RiskLevel.HIGH,
         "android.permission.RECEIVE_MMS" to RiskLevel.HIGH,
         "android.permission.RECEIVE_WAP_PUSH" to RiskLevel.HIGH,
@@ -33,20 +167,15 @@ object RiskClassifier {
         "android.permission.ACCESS_BACKGROUND_LOCATION" to RiskLevel.HIGH,
         "android.permission.READ_CONTACTS" to RiskLevel.HIGH,
         "android.permission.WRITE_CONTACTS" to RiskLevel.HIGH,
-        "android.permission.SYSTEM_ALERT_WINDOW" to RiskLevel.HIGH,
-        "android.permission.REQUEST_INSTALL_PACKAGES" to RiskLevel.HIGH,
-        "android.permission.MANAGE_EXTERNAL_STORAGE" to RiskLevel.HIGH,
         "android.permission.BODY_SENSORS_BACKGROUND" to RiskLevel.HIGH,
-        "android.permission.PACKAGE_USAGE_STATS" to RiskLevel.HIGH,
         "android.permission.READ_LOGS" to RiskLevel.HIGH,
-        "android.permission.WRITE_SECURE_SETTINGS" to RiskLevel.HIGH,
         "android.permission.INSTALL_PACKAGES" to RiskLevel.HIGH,
         "android.permission.DELETE_PACKAGES" to RiskLevel.HIGH,
         "android.permission.CAPTURE_AUDIO_OUTPUT" to RiskLevel.HIGH,
         "android.permission.BROADCAST_SMS" to RiskLevel.HIGH,
         "android.permission.MANAGE_DEVICE_ADMINS" to RiskLevel.HIGH,
 
-        // MEDIUM RISK PERMISSIONS
+        // MEDIUM risk permissions
         "android.permission.ACCESS_FINE_LOCATION" to RiskLevel.MEDIUM,
         "android.permission.ACCESS_COARSE_LOCATION" to RiskLevel.MEDIUM,
         "android.permission.READ_MEDIA_IMAGES" to RiskLevel.MEDIUM,
@@ -69,8 +198,9 @@ object RiskClassifier {
         "android.permission.READ_CELL_BROADCASTS" to RiskLevel.MEDIUM,
         "android.permission.WRITE_SETTINGS" to RiskLevel.MEDIUM,
         "android.permission.REQUEST_DELETE_PACKAGES" to RiskLevel.MEDIUM,
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" to RiskLevel.MEDIUM,
 
-        //  LOW RISK PERMISSIONS
+        // LOW risk permissions
         "android.permission.POST_NOTIFICATIONS" to RiskLevel.LOW,
         "android.permission.READ_EXTERNAL_STORAGE" to RiskLevel.LOW,
         "android.permission.WRITE_EXTERNAL_STORAGE" to RiskLevel.LOW,
@@ -85,73 +215,8 @@ object RiskClassifier {
         "android.permission.USE_BIOMETRIC" to RiskLevel.LOW,
         "android.permission.ACCESS_WIFI_STATE" to RiskLevel.LOW,
         "android.permission.CHANGE_WIFI_STATE" to RiskLevel.LOW,
-        "android.permission.DISABLE_KEYGUARD" to RiskLevel.LOW
+        "android.permission.DISABLE_KEYGUARD" to RiskLevel.LOW,
+        "android.permission.FOREGROUND_SERVICE_CAMERA" to RiskLevel.LOW,
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE" to RiskLevel.LOW
     )
-
-    fun classifyPermission(name: String, protectionLevel: Int): RiskLevel {
-        val mapped = PERMISSION_RISK_MAP[name]
-        if (mapped != null) {
-            return mapped
-        }
-
-        // Check if name matches READ_MEDIA_* prefix
-        if (name.startsWith("android.permission.READ_MEDIA_")) {
-            return RiskLevel.MEDIUM
-        }
-
-        // Fallback by protection level base type (lower 4 bits)
-        val baseProtection = protectionLevel and 0x0F
-        return when (baseProtection) {
-            PROTECTION_DANGEROUS -> RiskLevel.MEDIUM
-            PROTECTION_SIGNATURE -> RiskLevel.LOW
-            PROTECTION_NORMAL -> RiskLevel.NONE
-            else -> {
-                // If flagged with privileged or signature bits
-                if ((protectionLevel and 0x10) != 0 || (protectionLevel and 0x20) != 0) {
-                    RiskLevel.LOW
-                } else {
-                    RiskLevel.NONE
-                }
-            }
-        }
-    }
-
-    fun calculateOverallRisk(permissions: List<PermissionInfo>): RiskLevel {
-        if (permissions.isEmpty()) return RiskLevel.NONE
-
-        var highCount = 0
-        var mediumCount = 0
-        var lowCount = 0
-        var totalScore = 0
-
-        for (permission in permissions) {
-            when (permission.risk) {
-                RiskLevel.HIGH -> {
-                    highCount++
-                    totalScore += SCORE_HIGH
-                }
-
-                RiskLevel.MEDIUM -> {
-                    mediumCount++
-                    totalScore += SCORE_MEDIUM
-                }
-
-                RiskLevel.LOW -> {
-                    lowCount++
-                    totalScore += SCORE_LOW
-                }
-
-                RiskLevel.NONE -> {
-                    totalScore += SCORE_NONE
-                }
-            }
-        }
-
-        return when {
-            highCount >= HIGH_RISK_COUNT_THRESHOLD || totalScore >= HIGH_RISK_SCORE_THRESHOLD -> RiskLevel.HIGH
-            highCount >= 1 || mediumCount >= 1 -> RiskLevel.MEDIUM
-            lowCount >= 1 -> RiskLevel.LOW
-            else -> RiskLevel.NONE
-        }
-    }
 }

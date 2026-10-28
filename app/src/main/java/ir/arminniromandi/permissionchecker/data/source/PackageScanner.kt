@@ -113,9 +113,9 @@ class PackageScanner @Inject constructor(
             }
             Triple(label, description, protection)
         } catch (_: PackageManager.NameNotFoundException) {
-            Triple(null, null, RiskClassifier.PROTECTION_NORMAL)
+            Triple(null, null, 0)
         } catch (_: Exception) {
-            Triple(null, null, RiskClassifier.PROTECTION_NORMAL)
+            Triple(null, null, 0)
         }
     }
 
