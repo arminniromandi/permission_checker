@@ -2,7 +2,6 @@ package ir.arminniromandi.permissionchecker.data.repository
 
 import ir.arminniromandi.permissionchecker.data.source.AppIconLoader
 import ir.arminniromandi.permissionchecker.data.source.PackageScanner
-import ir.arminniromandi.permissionchecker.di.IoDispatcher
 import ir.arminniromandi.permissionchecker.domain.model.AppInfo
 import ir.arminniromandi.permissionchecker.domain.model.RiskLevel
 import ir.arminniromandi.permissionchecker.domain.model.ScanEvent
@@ -10,7 +9,7 @@ import ir.arminniromandi.permissionchecker.domain.model.ScanProgress
 import ir.arminniromandi.permissionchecker.domain.model.ScanSummary
 import ir.arminniromandi.permissionchecker.domain.repository.AppScanRepository
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -29,8 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class AppScanRepositoryImpl @Inject constructor(
     private val packageScanner: PackageScanner,
-    private val iconLoader: AppIconLoader,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val iconLoader: AppIconLoader
 ) : AppScanRepository {
 
     private val _lastResult = MutableStateFlow<List<AppInfo>>(emptyList())
@@ -151,14 +149,14 @@ class AppScanRepositoryImpl @Inject constructor(
         _lastSummary.value = summary
 
         emit(ScanEvent.Completed(apps = scannedApps, summary = summary))
-    }.flowOn(ioDispatcher)
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun getApp(packageName: String): AppInfo? = withContext(ioDispatcher) {
+    override suspend fun getApp(packageName: String): AppInfo? = withContext(Dispatchers.IO) {
         _lastResult.value.find { it.packageName == packageName }
             ?: packageScanner.scanPackage(packageName)
     }
 
-    override suspend fun removeApp(packageName: String): Unit = withContext(ioDispatcher) {
+    override suspend fun removeApp(packageName: String): Unit = withContext(Dispatchers.IO) {
         scanMutex.withLock {
             val currentList = _lastResult.value
             val updatedList = currentList.filterNot { it.packageName == packageName }
