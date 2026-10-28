@@ -1,5 +1,8 @@
 package ir.arminniromandi.permissionchecker.ui.navigation
 
+import android.app.Activity
+import android.content.ContextWrapper
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +22,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -48,6 +55,26 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
+    val view = LocalView.current
+    val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+    val isDarkTheme = isSystemInDarkTheme()
+
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window
+                ?: (generateSequence(view.context) { (it as? ContextWrapper)?.baseContext }
+                    .filterIsInstance<Activity>()
+                    .firstOrNull()?.window)
+            if (window != null) {
+                window.statusBarColor = surfaceColor
+                window.navigationBarColor = surfaceColor
+                val insetsController = WindowCompat.getInsetsController(window, view)
+                insetsController.isAppearanceLightStatusBars = !isDarkTheme
+                insetsController.isAppearanceLightNavigationBars = !isDarkTheme
+            }
+        }
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val destination = navBackStackEntry?.destination
 
@@ -73,21 +100,7 @@ fun AppNavHost(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        else -> {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Shield,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = stringResource(R.string.home_title),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
+                        else -> {}
                     }
                 },
                 navigationIcon = {
