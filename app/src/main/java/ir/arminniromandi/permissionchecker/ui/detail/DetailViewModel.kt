@@ -57,9 +57,13 @@ class DetailViewModel @Inject constructor(
     }
 
     fun onUninstallResultReturned() {
-        // Check if package is still installed
         val isStillInstalled = try {
-            packageManager.getPackageInfo(packageName, 0)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0)
+            }
             true
         } catch (_: PackageManager.NameNotFoundException) {
             false

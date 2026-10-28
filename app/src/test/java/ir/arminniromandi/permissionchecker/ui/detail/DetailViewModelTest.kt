@@ -81,6 +81,9 @@ class DetailViewModelTest {
 
         // Simulate package not found (uninstalled)
         every { packageManager.getPackageInfo(testPackageName, 0) } throws PackageManager.NameNotFoundException()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            every { packageManager.getPackageInfo(testPackageName, any<PackageManager.PackageInfoFlags>()) } throws PackageManager.NameNotFoundException()
+        }
 
         viewModel.onUninstallResultReturned()
         advanceUntilIdle()

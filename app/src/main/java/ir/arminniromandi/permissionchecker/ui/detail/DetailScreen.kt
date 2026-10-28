@@ -91,11 +91,23 @@ fun DetailScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is DetailEvent.RequestUninstall -> {
-                    val intent = Intent(
-                        Intent.ACTION_DELETE,
-                        Uri.fromParts("package", event.packageName, null)
-                    )
-                    uninstallLauncher.launch(intent)
+                    try {
+                        val uri = Uri.parse("package:${event.packageName}")
+                        val intent = Intent(Intent.ACTION_DELETE, uri).apply {
+                            putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                        }
+                        uninstallLauncher.launch(intent)
+                    } catch (_: Exception) {
+                        try {
+                            val fallbackIntent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                                data = Uri.parse("package:${event.packageName}")
+                                putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                            }
+                            uninstallLauncher.launch(fallbackIntent)
+                        } catch (_: Exception) {
+                            // Handle edge cases where intent cannot be handled
+                        }
+                    }
                 }
                 is DetailEvent.AppUninstalled -> {
                     onNavigateBack()
