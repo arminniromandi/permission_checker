@@ -19,7 +19,7 @@ object RiskClassifier {
     const val PROTECTION_SIGNATURE = 2
 
     private val PERMISSION_RISK_MAP: Map<String, RiskLevel> = mapOf(
-        // --- HIGH RISK PERMISSIONS ---
+        // HIGH RISK PERMISSIONS
         "android.permission.READ_SMS" to RiskLevel.HIGH,
         "android.permission.RECEIVE_SMS" to RiskLevel.HIGH,
         "android.permission.SEND_SMS" to RiskLevel.HIGH,
@@ -33,39 +33,59 @@ object RiskClassifier {
         "android.permission.ACCESS_BACKGROUND_LOCATION" to RiskLevel.HIGH,
         "android.permission.READ_CONTACTS" to RiskLevel.HIGH,
         "android.permission.WRITE_CONTACTS" to RiskLevel.HIGH,
-        "android.permission.GET_ACCOUNTS" to RiskLevel.HIGH,
-        "android.permission.BIND_ACCESSIBILITY_SERVICE" to RiskLevel.HIGH,
         "android.permission.SYSTEM_ALERT_WINDOW" to RiskLevel.HIGH,
         "android.permission.REQUEST_INSTALL_PACKAGES" to RiskLevel.HIGH,
         "android.permission.MANAGE_EXTERNAL_STORAGE" to RiskLevel.HIGH,
-        "android.permission.BIND_DEVICE_ADMIN" to RiskLevel.HIGH,
-        "android.permission.READ_PHONE_NUMBERS" to RiskLevel.HIGH,
-        "android.permission.USE_SIP" to RiskLevel.HIGH,
         "android.permission.BODY_SENSORS_BACKGROUND" to RiskLevel.HIGH,
+        "android.permission.PACKAGE_USAGE_STATS" to RiskLevel.HIGH,
+        "android.permission.READ_LOGS" to RiskLevel.HIGH,
+        "android.permission.WRITE_SECURE_SETTINGS" to RiskLevel.HIGH,
+        "android.permission.INSTALL_PACKAGES" to RiskLevel.HIGH,
+        "android.permission.DELETE_PACKAGES" to RiskLevel.HIGH,
+        "android.permission.CAPTURE_AUDIO_OUTPUT" to RiskLevel.HIGH,
+        "android.permission.BROADCAST_SMS" to RiskLevel.HIGH,
+        "android.permission.MANAGE_DEVICE_ADMINS" to RiskLevel.HIGH,
 
-        // --- MEDIUM RISK PERMISSIONS ---
+        // MEDIUM RISK PERMISSIONS
         "android.permission.ACCESS_FINE_LOCATION" to RiskLevel.MEDIUM,
         "android.permission.ACCESS_COARSE_LOCATION" to RiskLevel.MEDIUM,
-        "android.permission.READ_EXTERNAL_STORAGE" to RiskLevel.MEDIUM,
-        "android.permission.WRITE_EXTERNAL_STORAGE" to RiskLevel.MEDIUM,
         "android.permission.READ_MEDIA_IMAGES" to RiskLevel.MEDIUM,
         "android.permission.READ_MEDIA_VIDEO" to RiskLevel.MEDIUM,
         "android.permission.READ_MEDIA_AUDIO" to RiskLevel.MEDIUM,
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" to RiskLevel.MEDIUM,
         "android.permission.READ_CALENDAR" to RiskLevel.MEDIUM,
         "android.permission.WRITE_CALENDAR" to RiskLevel.MEDIUM,
         "android.permission.BLUETOOTH_CONNECT" to RiskLevel.MEDIUM,
         "android.permission.BLUETOOTH_SCAN" to RiskLevel.MEDIUM,
-        "android.permission.BLUETOOTH_ADVERTISE" to RiskLevel.MEDIUM,
-        "android.permission.POST_NOTIFICATIONS" to RiskLevel.MEDIUM,
         "android.permission.READ_PHONE_STATE" to RiskLevel.MEDIUM,
+        "android.permission.READ_PHONE_NUMBERS" to RiskLevel.MEDIUM,
+        "android.permission.GET_ACCOUNTS" to RiskLevel.MEDIUM,
         "android.permission.CALL_PHONE" to RiskLevel.MEDIUM,
-        "android.permission.ADD_VOICEMAIL" to RiskLevel.MEDIUM,
+        "android.permission.ANSWER_PHONE_CALLS" to RiskLevel.MEDIUM,
         "android.permission.BODY_SENSORS" to RiskLevel.MEDIUM,
         "android.permission.ACTIVITY_RECOGNITION" to RiskLevel.MEDIUM,
         "android.permission.NEARBY_WIFI_DEVICES" to RiskLevel.MEDIUM,
-        "android.permission.SCHEDULE_EXACT_ALARM" to RiskLevel.MEDIUM,
-        "android.permission.USE_FULL_SCREEN_INTENT" to RiskLevel.MEDIUM
+        "android.permission.QUERY_ALL_PACKAGES" to RiskLevel.MEDIUM,
+        "android.permission.ACCESS_MEDIA_LOCATION" to RiskLevel.MEDIUM,
+        "android.permission.READ_CELL_BROADCASTS" to RiskLevel.MEDIUM,
+        "android.permission.WRITE_SETTINGS" to RiskLevel.MEDIUM,
+        "android.permission.REQUEST_DELETE_PACKAGES" to RiskLevel.MEDIUM,
+
+        //  LOW RISK PERMISSIONS
+        "android.permission.POST_NOTIFICATIONS" to RiskLevel.LOW,
+        "android.permission.READ_EXTERNAL_STORAGE" to RiskLevel.LOW,
+        "android.permission.WRITE_EXTERNAL_STORAGE" to RiskLevel.LOW,
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" to RiskLevel.LOW,
+        "android.permission.SCHEDULE_EXACT_ALARM" to RiskLevel.LOW,
+        "android.permission.USE_FULL_SCREEN_INTENT" to RiskLevel.LOW,
+        "android.permission.BLUETOOTH_ADVERTISE" to RiskLevel.LOW,
+        "android.permission.ADD_VOICEMAIL" to RiskLevel.LOW,
+        "android.permission.USE_SIP" to RiskLevel.LOW,
+        "android.permission.RECEIVE_BOOT_COMPLETED" to RiskLevel.LOW,
+        "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" to RiskLevel.LOW,
+        "android.permission.USE_BIOMETRIC" to RiskLevel.LOW,
+        "android.permission.ACCESS_WIFI_STATE" to RiskLevel.LOW,
+        "android.permission.CHANGE_WIFI_STATE" to RiskLevel.LOW,
+        "android.permission.DISABLE_KEYGUARD" to RiskLevel.LOW
     )
 
     fun classifyPermission(name: String, protectionLevel: Int): RiskLevel {
@@ -110,14 +130,17 @@ object RiskClassifier {
                     highCount++
                     totalScore += SCORE_HIGH
                 }
+
                 RiskLevel.MEDIUM -> {
                     mediumCount++
                     totalScore += SCORE_MEDIUM
                 }
+
                 RiskLevel.LOW -> {
                     lowCount++
                     totalScore += SCORE_LOW
                 }
+
                 RiskLevel.NONE -> {
                     totalScore += SCORE_NONE
                 }
