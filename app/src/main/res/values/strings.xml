@@ -1,3 +1,61 @@
 <resources>
-    <string name="app_name">permission Checker</string>
+    <string name="app_name">Permission Scanner</string>
+
+    <!-- General / Common -->
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="unknown">Unknown</string>
+    <string name="search_hint">Search apps by name or package…</string>
+
+    <!-- Risk Levels -->
+    <string name="risk_high">High Risk</string>
+    <string name="risk_medium">Medium Risk</string>
+    <string name="risk_low">Low Risk</string>
+    <string name="risk_none">No Risk</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Permission Scanner</string>
+    <string name="home_subtitle">Audit all apps and sensitive permissions on your device</string>
+    <string name="btn_start_scan">Start Scan</string>
+    <string name="btn_cancel_scan">Cancel Scan</string>
+    <string name="scan_progress_text">%1$d of %2$d apps scanned</string>
+    <string name="scan_counter_high">High Risk: %1$d</string>
+    <string name="scan_counter_medium">Suspicious: %1$d</string>
+    <string name="scan_counter_low">Low: %1$d</string>
+    <string name="preparing_scan">Preparing scanner…</string>
+    <string name="summary_title">Scan Summary</string>
+    <string name="summary_user_apps">User Installed Applications</string>
+    <string name="summary_system_apps">System Applications</string>
+    <string name="summary_total_apps">Total Apps Scanned: %1$d</string>
+    <string name="btn_view_apps">View Apps List</string>
+    <string name="alert_high_risk_found">Security Warning: %1$d high-risk applications detected with critical permissions!</string>
+
+    <!-- App List Screen -->
+    <string name="app_list_title">Installed Apps</string>
+    <string name="filter_all">All</string>
+    <string name="filter_high">High</string>
+    <string name="filter_medium">Medium</string>
+    <string name="filter_low">Low</string>
+    <string name="filter_system_apps">System Apps</string>
+    <string name="no_apps_found">No apps match the selected filter.</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">App Details</string>
+    <string name="app_not_found">Application information not available.</string>
+    <string name="version_label">Version: %1$s (%2$d)</string>
+    <string name="installed_date">Installed: %1$s</string>
+    <string name="updated_date">Updated: %1$s</string>
+    <string name="system_app_tag">System App</string>
+    <string name="user_app_tag">User App</string>
+    <string name="permissions_section_title">Requested Permissions (%1$d)</string>
+    <string name="no_permissions_requested">This application has not requested any permissions.</string>
+    <string name="perm_status_granted">Granted</string>
+    <string name="perm_status_denied">Not Granted</string>
+    <string name="btn_uninstall">Uninstall App</string>
+    <string name="cannot_uninstall_system_app">System applications cannot be uninstalled.</string>
+    <string name="uninstall_dialog_title">Uninstall Confirmation</string>
+    <string name="uninstall_dialog_message">Are you sure you want to uninstall \"%1$s\"?</string>
+    <string name="uninstall_confirm">Uninstall</string>
 </resources>

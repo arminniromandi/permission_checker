@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">اسکنر دسترسی‌ها</string>
+
+    <!-- General / Common -->
+    <string name="retry">تلاش مجدد</string>
+    <string name="cancel">انصراف</string>
+    <string name="back">بازگشت</string>
+    <string name="error_occurred">خطایی رخ داد</string>
+    <string name="unknown">نامشخص</string>
+    <string name="search_hint">جستجو بر اساس نام یا پکیج…</string>
+
+    <!-- Risk Levels -->
+    <string name="risk_high">پرخطر</string>
+    <string name="risk_medium">مشکوک / متوسط</string>
+    <string name="risk_low">کم‌خطر</string>
+    <string name="risk_none">عادی / بدون خطر</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">اسکنر دسترسی‌ها</string>
+    <string name="home_subtitle">بررسی امنیتی و پایش دسترسی‌های حساس برنامه‌های دستگاه</string>
+    <string name="btn_start_scan">شروع اسکن دستگاه</string>
+    <string name="btn_cancel_scan">لغو اسکن</string>
+    <string name="scan_progress_text">%1$d از %2$d برنامه اسکن شد</string>
+    <string name="scan_counter_high">پرخطر: %1$d</string>
+    <string name="scan_counter_medium">مشکوک: %1$d</string>
+    <string name="scan_counter_low">کم‌خطر: %1$d</string>
+    <string name="preparing_scan">در حال آماده‌سازی فهرست برنامه‌ها…</string>
+    <string name="summary_title">خلاصه وضعیت اسکن</string>
+    <string name="summary_user_apps">برنامه‌های نصب‌شده کاربر</string>
+    <string name="summary_system_apps">برنامه‌های پیش‌فرض سیستمی</string>
+    <string name="summary_total_apps">مجموع کل برنامه‌های اسکن‌شده: %1$d</string>
+    <string name="btn_view_apps">مشاهده لیست برنامه‌ها</string>
+    <string name="alert_high_risk_found">هشدار امنیتی: %1$d برنامه با ریسک بالا و دسترسی‌های حساس شناسایی شدند!</string>
+
+    <!-- App List Screen -->
+    <string name="app_list_title">برنامه‌های نصب‌شده</string>
+    <string name="filter_all">همه</string>
+    <string name="filter_high">پرخطر</string>
+    <string name="filter_medium">مشکوک</string>
+    <string name="filter_low">کم‌خطر</string>
+    <string name="filter_system_apps">شامل اپ‌های سیستم</string>
+    <string name="no_apps_found">هیچ برنامه‌ای مطابق با جستجو یا فیلتر یافت نشد.</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">جزئیات برنامه</string>
+    <string name="app_not_found">اطلاعات برنامه در دسترس نیست.</string>
+    <string name="version_label">نسخه: %1$s (%2$d)</string>
+    <string name="installed_date">تاریخ نصب: %1$s</string>
+    <string name="updated_date">آخرین به‌روزرسانی: %1$s</string>
+    <string name="system_app_tag">سیستمی</string>
+    <string name="user_app_tag">کاربر</string>
+    <string name="permissions_section_title">مجوزهای درخواستی (%1$d)</string>
+    <string name="no_permissions_requested">این برنامه هیچ مجوزی درخواست نکرده است.</string>
+    <string name="perm_status_granted">اعطا شده</string>
+    <string name="perm_status_denied">داده نشده</string>
+    <string name="btn_uninstall">حذف برنامه</string>
+    <string name="cannot_uninstall_system_app">برنامه‌های سیستمی قابل حذف نیستند.</string>
+    <string name="uninstall_dialog_title">تأیید حذف برنامه</string>
+    <string name="uninstall_dialog_message">آیا از حذف برنامه «%1$s» مطمئن هستید؟</string>
+    <string name="uninstall_confirm">حذف</string>
+</resources>
