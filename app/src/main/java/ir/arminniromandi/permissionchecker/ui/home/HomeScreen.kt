@@ -57,7 +57,6 @@ import ir.arminniromandi.permissionchecker.domain.model.ScanProgress
 import ir.arminniromandi.permissionchecker.domain.model.ScanSummary
 import ir.arminniromandi.permissionchecker.ui.theme.AppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -66,63 +65,36 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Shield,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.home_title),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        when (val state = uiState) {
+            is HomeUiState.Idle -> {
+                IdleView(onStartScan = { viewModel.startScan() })
+            }
+            is HomeUiState.Scanning -> {
+                ScanningView(
+                    progress = state.progress,
+                    onCancel = { viewModel.cancelScan() }
                 )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (val state = uiState) {
-                is HomeUiState.Idle -> {
-                    IdleView(onStartScan = { viewModel.startScan() })
-                }
-                is HomeUiState.Scanning -> {
-                    ScanningView(
-                        progress = state.progress,
-                        onCancel = { viewModel.cancelScan() }
-                    )
-                }
-                is HomeUiState.Done -> {
-                    DoneView(
-                        summary = state.summary,
-                        onViewApps = onNavigateToAppList,
-                        onRescan = { viewModel.startScan() }
-                    )
-                }
-                is HomeUiState.Error -> {
-                    ErrorView(
-                        message = state.message,
-                        onRetry = { viewModel.startScan() }
-                    )
-                }
+            }
+            is HomeUiState.Done -> {
+                DoneView(
+                    summary = state.summary,
+                    onViewApps = onNavigateToAppList,
+                    onRescan = { viewModel.startScan() }
+                )
+            }
+            is HomeUiState.Error -> {
+                ErrorView(
+                    message = state.message,
+                    onRetry = { viewModel.startScan() }
+                )
             }
         }
     }
@@ -163,15 +135,7 @@ private fun IdleView(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = stringResource(R.string.home_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        Spacer(modifier = Modifier.height(36.dp))
 
         Button(
             onClick = onStartScan,

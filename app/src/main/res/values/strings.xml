@@ -7,7 +7,7 @@
     <string name="back">Back</string>
     <string name="error_occurred">An error occurred</string>
     <string name="unknown">Unknown</string>
-    <string name="search_hint">Search apps by name or package…</string>
+    <string name="search_hint">Search apps by name</string>
 
     <!-- Risk Levels -->
     <string name="risk_high">High Risk</string>
@@ -38,7 +38,7 @@
     <string name="filter_high">High</string>
     <string name="filter_medium">Medium</string>
     <string name="filter_low">Low</string>
-    <string name="filter_system_apps">System Apps</string>
+    <string name="filter_system_apps">Include System Apps</string>
     <string name="no_apps_found">No apps match the selected filter.</string>
 
     <!-- Detail Screen -->
@@ -58,4 +58,5 @@
     <string name="uninstall_dialog_title">Uninstall Confirmation</string>
     <string name="uninstall_dialog_message">Are you sure you want to uninstall \"%1$s\"?</string>
     <string name="uninstall_confirm">Uninstall</string>
+    <string name="failed_to_uninstall">"failed to uninstall "</string>
 </resources>

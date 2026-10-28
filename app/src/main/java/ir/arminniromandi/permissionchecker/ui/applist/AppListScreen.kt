@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -54,47 +55,19 @@ import ir.arminniromandi.permissionchecker.ui.common.EmptyState
 import ir.arminniromandi.permissionchecker.ui.common.RiskBadge
 import ir.arminniromandi.permissionchecker.ui.theme.AppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
     viewModel: AppListViewModel,
     iconLoader: AppIconLoader,
-    onNavigateBack: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.app_list_title),
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
             // Search Input
             OutlinedTextField(
                 value = searchQuery,
@@ -183,10 +156,25 @@ fun AppListScreen(
                         selectedLabelColor = AppTheme.riskColors.onLowContainer
                     )
                 )
-                FilterChip(
-                    selected = uiState.includeSystemApps,
-                    onClick = { viewModel.onIncludeSystemAppsToggled(!uiState.includeSystemApps) },
-                    label = { Text(stringResource(R.string.filter_system_apps)) }
+            }
+
+            // Include System Apps Checkbox row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onIncludeSystemAppsToggled(!uiState.includeSystemApps) }
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = uiState.includeSystemApps,
+                    onCheckedChange = { viewModel.onIncludeSystemAppsToggled(it) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.filter_system_apps),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -214,7 +202,6 @@ fun AppListScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

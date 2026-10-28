@@ -3,6 +3,7 @@ package ir.arminniromandi.permissionchecker.ui.detail
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -80,6 +81,8 @@ fun DetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showUninstallDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     val uninstallLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -105,7 +108,7 @@ fun DetailScreen(
                             }
                             uninstallLauncher.launch(fallbackIntent)
                         } catch (_: Exception) {
-                            // Handle edge cases where intent cannot be handled
+                            Toast.makeText(context, R.string.failed_to_uninstall, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -116,45 +119,11 @@ fun DetailScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.detail_title),
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
-        bottomBar = {
-            val currentState = uiState
-            if (currentState is DetailUiState.Success) {
-                BottomActionBar(
-                    app = currentState.app,
-                    onUninstallClick = { showUninstallDialog = true }
-                )
-            }
-        }
-    ) { paddingValues ->
+    Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
             is DetailUiState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -162,9 +131,7 @@ fun DetailScreen(
             }
             is DetailUiState.Error -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -175,11 +142,18 @@ fun DetailScreen(
                 }
             }
             is DetailUiState.Success -> {
-                DetailContent(
-                    app = state.app,
-                    iconLoader = iconLoader,
-                    modifier = Modifier.padding(paddingValues)
-                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        DetailContent(
+                            app = state.app,
+                            iconLoader = iconLoader
+                        )
+                    }
+                    BottomActionBar(
+                        app = state.app,
+                        onUninstallClick = { showUninstallDialog = true }
+                    )
+                }
 
                 if (showUninstallDialog) {
                     AlertDialog(
@@ -226,8 +200,11 @@ private fun DetailContent(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // App Header
+
         item {
+
+
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,7 +236,7 @@ private fun DetailContent(
             }
         }
 
-        // Info Card
+
         item {
             OutlinedCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -311,7 +288,6 @@ private fun DetailContent(
             }
         }
 
-        // Permissions Section Header
         item {
             Text(
                 text = stringResource(R.string.permissions_section_title, app.permissions.size),
