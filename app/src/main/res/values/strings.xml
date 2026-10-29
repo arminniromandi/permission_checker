@@ -29,6 +29,13 @@
     <string name="summary_user_apps">User Installed Applications</string>
     <string name="summary_system_apps">System Applications</string>
     <string name="summary_total_apps">Total Apps Scanned: %1$d</string>
+    <string name="summary_system_total">Total: %1$d</string>
+    <string name="user_installed_apps_label">User-Installed Apps</string>
+    <string name="user_installed_apps_count">User-installed apps: %1$d</string>
+    <string name="user_high_risk_label">High-Risk Apps</string>
+    <string name="user_high_risk_count">High-risk apps: %1$d</string>
+    <string name="user_suspicious_label">Suspicious Apps</string>
+    <string name="user_suspicious_count">Suspicious apps: %1$d</string>
     <string name="btn_view_apps">View Apps List</string>
     <string name="alert_high_risk_found">Security Warning: %1$d high-risk applications detected with critical permissions!</string>
 
