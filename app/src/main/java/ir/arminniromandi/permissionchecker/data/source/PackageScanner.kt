@@ -43,7 +43,7 @@ class PackageScanner @Inject constructor(
             packageName
         }
 
-        val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) &&
+        val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) ||
                 (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP == 0)
 
         val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
