@@ -51,7 +51,8 @@ class AppIconLoader @Inject constructor(
             scope.async {
                 try {
                     // Check cache inside async in case another coroutine populated it
-                    memoryCache.get(packageName)?.let { return@async it }
+                    memoryCache.get(packageName)?.let {
+                        return@async it }
                     val bitmap = loadAndRenderIcon(packageName)
                     if (bitmap != null) {
                         memoryCache.put(packageName, bitmap)

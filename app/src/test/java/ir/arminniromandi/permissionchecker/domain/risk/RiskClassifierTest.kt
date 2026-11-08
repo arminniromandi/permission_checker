@@ -31,7 +31,7 @@ class RiskClassifierTest {
     fun testClassifyPermission_knownMediumPermissions() {
         assertEquals(
             RiskLevel.MEDIUM,
-            RiskClassifier.classifyPermission("android.permission.ACCESS_FINE_LOCATION", 0)
+            RiskClassifier.classifyPermission("android.permission.ACCESS_COARSE_LOCATION", 0)
         )
         assertEquals(
             RiskLevel.MEDIUM,
@@ -39,11 +39,11 @@ class RiskClassifierTest {
         )
         assertEquals(
             RiskLevel.MEDIUM,
-            RiskClassifier.classifyPermission("android.permission.READ_CALENDAR", 0)
+            RiskClassifier.classifyPermission("android.permission.READ_PHONE_STATE", 0)
         )
         assertEquals(
             RiskLevel.MEDIUM,
-            RiskClassifier.classifyPermission("android.permission.READ_MEDIA_CUSTOM_TYPE", 0)
+            RiskClassifier.classifyPermission("android.permission.GET_ACCOUNTS", 0)
         )
     }
 
@@ -55,7 +55,7 @@ class RiskClassifierTest {
         )
         assertEquals(
             RiskLevel.LOW,
-            RiskClassifier.classifyPermission("android.permission.READ_EXTERNAL_STORAGE", 0)
+            RiskClassifier.classifyPermission("android.permission.USE_BIOMETRIC", 0)
         )
     }
 
@@ -113,9 +113,9 @@ class RiskClassifierTest {
 
     @Test
     fun testCalculateOverallRisk_singleHighNonCriticalPermission_returnsMedium() {
-        // CAMERA is non-critical HIGH, granted score = 6 >= MEDIUM_RISK_SCORE_THRESHOLD(4) -> MEDIUM
+        // QUERY_ALL_PACKAGES is non-critical HIGH, granted score = 6 >= MEDIUM_RISK_SCORE_THRESHOLD(4) -> MEDIUM
         val perms = listOf(
-            createPerm("android.permission.CAMERA", RiskLevel.HIGH, isGranted = true)
+            createPerm("android.permission.QUERY_ALL_PACKAGES", RiskLevel.HIGH, isGranted = true)
         )
         assertEquals(RiskLevel.MEDIUM, RiskClassifier.calculateOverallRisk(perms))
     }
@@ -124,8 +124,8 @@ class RiskClassifierTest {
     fun testCalculateOverallRisk_twoHighNonCriticalPermissions_score12_returnsHigh() {
         // 2 granted non-critical HIGH: 6 + 6 = 12 >= HIGH_RISK_SCORE_THRESHOLD(12) -> HIGH
         val perms = listOf(
-            createPerm("android.permission.CAMERA", RiskLevel.HIGH, isGranted = true),
-            createPerm("android.permission.RECORD_AUDIO", RiskLevel.HIGH, isGranted = true)
+            createPerm("android.permission.QUERY_ALL_PACKAGES", RiskLevel.HIGH, isGranted = true),
+            createPerm("android.permission.READ_LOGS", RiskLevel.HIGH, isGranted = true)
         )
         assertEquals(RiskLevel.HIGH, RiskClassifier.calculateOverallRisk(perms))
     }
@@ -134,7 +134,7 @@ class RiskClassifierTest {
     fun testCalculateOverallRisk_mediumPermissions_reachThreshold4_returnsMedium() {
         // 2 granted MEDIUM: 2 + 2 = 4 >= MEDIUM_RISK_SCORE_THRESHOLD(4) -> MEDIUM
         val perms = listOf(
-            createPerm("android.permission.ACCESS_FINE_LOCATION", RiskLevel.MEDIUM, isGranted = true),
+            createPerm("android.permission.ACCESS_COARSE_LOCATION", RiskLevel.MEDIUM, isGranted = true),
             createPerm("android.permission.BLUETOOTH_CONNECT", RiskLevel.MEDIUM, isGranted = true)
         )
         assertEquals(RiskLevel.MEDIUM, RiskClassifier.calculateOverallRisk(perms))
